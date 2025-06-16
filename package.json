@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",
-<<<<<<< HEAD
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.9.0",
     "@tanstack/react-query": "^5.80.7",
@@ -34,19 +33,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-=======
-    "@prisma/client": "^6.8.2",
-    "bcryptjs": "^3.0.2",
-    "next": "15.1.7",
-    "next-auth": "^4.24.11",
-    "prisma": "^6.8.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@types/bcryptjs": "^2.4.6",
->>>>>>> cd77a9e63db42ba8cea66b70f42f7403c61f53a4
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

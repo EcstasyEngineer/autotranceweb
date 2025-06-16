@@ -5,7 +5,8 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(cp:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }
