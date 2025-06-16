@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "AI Conditioner Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}",
+      "serverReadyAction": {
+        "pattern": "- Local:.*http://localhost:(\\d+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
+      }
+    },
+    {
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
@@ -19,10 +31,22 @@
       }
     },
     {
+      "name": "Build Production",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run build"
+    },
+    {
+      "name": "Run Production Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm start"
+    },
+    {
       "name": "Launch Flask App (legacy)",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/run.py",
+      "program": "${workspaceFolder}/old code/run.py",
       "env": {
         "FLASK_APP": "app",
         "FLASK_ENV": "development",
@@ -31,6 +55,6 @@
       "args": [],
       "console": "integratedTerminal",
       "justMyCode": true
-    },
+    }
   ]
 }
