@@ -39,15 +39,15 @@ Generate 2-3 sentences following this exact pattern:
 - Lengthy explanatory paragraphs
 
 ## APPEAL SECTION  
-Write from a **script writer's perspective** - what would someone writing hypnosis content need to understand about why people are drawn to this theme?
+Write as direct psychological insights about the theme that enable better script creation.
 
-Focus on:
-- **Psychological drivers**: What deep needs does this fulfill?
-- **Contrast dynamics**: How does this differ from daily life?
-- **Writer insights**: What emotional buttons to press?
-- **Target audience psychology**: Who seeks this and why?
+Structure (3-4 sentences total):
+1. **Target audience psychology**: Who seeks this content and their core struggles
+2. **Psychological drivers**: What deep needs this fulfills and why it works
+3. **Emotional triggers**: Key psychological buttons and effective approaches
+4. **Practical dynamics**: What makes this theme compelling vs daily life
 
-Keep it practical and analytical, not academic or verbose.
+Write in present tense, analytical tone. Avoid "writers should" or meta-commentary about writing. Focus on pure psychological insights that inform content creation.
 
 ## KEYWORDS SECTION
 Generate 15-20 keywords that function as **embedded commands** and **hypnotic motifs**.
@@ -90,7 +90,7 @@ Most themes should be `false`.
 ```json
 {
     "description": "Experiencing transformative self-assurance and empowerment with warm, glowing sensation spreading from core and filling with radiant energy. Feeling thrill of accomplishment and certainty of capabilities through affirmations and visualizations of success. Behaving with poise and decisiveness, unburdened by doubt with inner conviction, purpose, and clarity.",
-    "appeal": "Writers should understand that confidence themes tap into the universal struggle with self-doubt that most people face daily. The appeal lies in temporary relief from imposter syndrome and social anxiety. Target audience seeks transformation from insecurity to empowerment. Key psychological drivers include desire for social validation, fear of judgment, and need for internal strength. Scripts should emphasize contrast between current self-doubt and future self-assured state, using visualization and affirmation techniques.",
+    "appeal": "Confidence themes attract individuals struggling with imposter syndrome, social anxiety, and chronic self-doubt in daily life. Core psychological drivers include desperate need for internal validation, fear of judgment, and exhaustion from constant self-criticism. Most effective triggers emphasize transformation from current insecurity to future empowerment through visualization and affirmation. Theme works by providing temporary relief from perfectionism while building new neural pathways of self-assurance.",
     "keywords": [
         "self-assurance",
         "empowerment", 
