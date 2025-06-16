@@ -26,6 +26,7 @@ export interface ArrangedItem {
   startTime?: number;
   volume?: number;
   effect?: string;
+  rotation?: number; // For rotational player
 }
 
 export interface SessionState {

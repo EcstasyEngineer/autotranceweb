@@ -1,10 +1,14 @@
-<<<<<<< HEAD
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export default function Home() {
-  redirect("/dashboard");
-=======
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -68,5 +72,4 @@ export default function Home() {
       </div>
     </div>
   );
->>>>>>> cd77a9e63db42ba8cea66b70f42f7403c61f53a4
 }
