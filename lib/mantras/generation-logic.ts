@@ -175,9 +175,7 @@ export function getCategoryModifiers(categories: string[]): string {
 export function generatePromptContext(
   themeName: string, 
   description: string, 
-  categories: string[],
-  relatedThemes: string[],
-  keywords: string[]
+  categories: string[]
 ): {
   characteristics: ThemeCharacteristics;
   distribution: DifficultyProfile;

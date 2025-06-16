@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from 'next/link';
-import { Play, Plus, Settings, BookOpen } from 'lucide-react';
+import Link from "next/link";
+import { Play, Plus, Settings, BookOpen } from "lucide-react";
 
 interface Theme {
   id: string;

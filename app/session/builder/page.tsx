@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Plus, Save, Play, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ArrowLeft, Plus, Save, Play, X } from "lucide-react";
 
 interface Theme {
   id: string;

@@ -16,8 +16,7 @@ export default function SpiralViewer({
   width = 800,
   height = 600,
   autoplay = true,
-  speed = 1.0,
-  intensity = 1.0
+  speed = 1.0
 }: SpiralViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
@@ -207,7 +206,7 @@ export default function SpiralViewer({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [shaderName, width, height, speed, isPlaying]);
+  }, [shaderName, width, height, speed, isPlaying, currentTime]);
 
   const togglePlayback = () => {
     setIsPlaying(!isPlaying);

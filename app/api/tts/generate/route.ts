@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TemplateProcessor, TEMPLATE_VARIABLES, TTSOptions } from '@/lib/tts/aws-polly';
+import { TemplateProcessor, TEMPLATE_VARIABLES } from '@/lib/tts/aws-polly';
 
 export async function POST(request: NextRequest) {
   try {

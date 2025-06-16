@@ -1,18 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, Download, Eye, EyeOff } from 'lucide-react';
 import SpiralViewer from '@/components/ui/spiral-viewer';
 import { TemplateProcessor, TEMPLATE_VARIABLES, TTSOptions } from '@/lib/tts/aws-polly';
 
-interface MantraTemplate {
-  id: string;
-  text: string;
-  theme: string;
-  difficulty: 'BASIC' | 'LIGHT' | 'MODERATE' | 'DEEP' | 'EXTREME';
-  points: number;
-  tags: string[];
-}
 
 interface ProcessedVariant {
   text: string;
@@ -57,9 +49,9 @@ export default function MantraEditor() {
     if (currentTemplate) {
       generateVariants();
     }
-  }, [currentTemplate]);
+  }, [currentTemplate, generateVariants]);
 
-  const generateVariants = () => {
+  const generateVariants = useCallback(() => {
     if (!currentTemplate.trim()) {
       setVariants([]);
       return;
@@ -93,7 +85,7 @@ export default function MantraEditor() {
     });
 
     setVariants(newVariants);
-  };
+  }, [currentTemplate]);
 
   const generateAudioForVariants = async () => {
     setIsGeneratingAudio(true);

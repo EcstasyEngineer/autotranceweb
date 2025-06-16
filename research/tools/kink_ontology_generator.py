@@ -6,58 +6,67 @@ import sys
 
 client = openai.OpenAI()
 
-# Prompt template identical to the notebook version
-prompt = """\
-Given a hypnokink headspace, generate a detailed ontology including the headspace description, psychological appeal explanation, a concise set of thematic keywords, and functional metadata.
-
-Input:
-- Kink Name: {kink_name}
-- Guidance: {guidance}
-
-Output (in JSON format):
-{{
-    "description": "A vivid and detailed description defining the desired hypnotic headspace. Focus on the subjective experience, emotional tone, and how the subject feels or behaves while immersed in the headspace. Describe how this state unfolds or is induced, and what it might feel like to someone going through it.",
+def load_prompt_template():
+    """Load the prompt template from the docs/prompts directory."""
+    # Get the directory where this script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Navigate to the prompt file relative to the script location
+    prompt_file = os.path.join(script_dir, "..", "..", "docs", "prompts", "Generate_Ontology_Theme.txt")
     
-    "appeal": "An insightful explanation describing the core psychological or emotional reasons individuals might find this hypnokink fulfilling or appealing. Emphasize what makes the state attractive or desirable, especially how it may serve as an emotional outlet or contrast to day-to-day responsibilities. Avoid assuming specific narratives unless implied by the guidance.",
-    
-    "keywords": ["A concise, curated list of approximately 10–15 simple, universally understood keywords or short phrases that reflect the emotional tone, behaviors, and symbolic language of the kink. These should be suitable for embedding as hypnotic triggers, mantra repetitions, or thematic reinforcement within scripts. Avoid overly complex or esoteric terms."],
-    
-    "tags": ["List one or more names from the approved tag list below, based on what categories best apply to this kink."],
+    try:
+        with open(prompt_file, "r", encoding="utf-8") as f:
+            prompt_content = f.read()
+        
+        # Add the input parameters instruction
+        formatted_prompt = prompt_content + f"""
 
-    "cnc": false  // Set to true only if the theme includes elements of implied non-consent, overwhelming compulsion, helplessness, or psychological manipulation that may require a consent-education warning. Do not set true for general submission, obedience, or control unless there is a loss of agency or unsafe framing.
-}}
+## INPUT PARAMETERS
+Theme Name: {{theme_name}}
+
+Generate the complete JSON file for the given theme name, following these specifications exactly.
 """
+        return formatted_prompt
+    except FileNotFoundError:
+        sys.exit(f"Error: Could not find prompt file at {prompt_file}")
+    except Exception as e:
+        sys.exit(f"Error loading prompt file: {e}")
 
-def generate_hypnokink_ontology(kink_name, guidance, max_tokens=1000):
-    formatted_prompt = prompt.format(kink_name=kink_name, guidance=guidance)
+def generate_hypnokink_ontology(theme_name, max_tokens=2000):
+    """Generate ontology using the loaded prompt template."""
+    prompt_template = load_prompt_template()
+    formatted_prompt = prompt_template.format(theme_name=theme_name)
+    
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant skilled in creating hypnokink ontologies."},
+                {"role": "system", "content": "You are a skilled assistant specialized in creating detailed hypnokink ontologies. Follow the provided specifications exactly."},
                 {"role": "user", "content": formatted_prompt}
             ],
             response_format={"type": "json_object"},
             max_tokens=max_tokens,
-            temperature=0
+            temperature=0.1
         )
         return response.choices[0].message.content
     except Exception as e:
         sys.exit(f"Error generating ontology: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate a hypnokink ontology from CLI parameters.")
-    parser.add_argument("kink_name", help="Name of the kink.")
-    parser.add_argument("--guidance", "-g", help="Initial description/guidance for the kink.", default="No description provided.")
-    parser.add_argument("--output", "-o", help="Output JSON file path. If not provided, prints the output.", default=None)
+    parser = argparse.ArgumentParser(description="Generate a hypnokink ontology using the detailed prompt template.")
+    parser.add_argument("theme_name", help="Name of the theme/kink to generate ontology for.")
+    parser.add_argument("--output", "-o", help="Output JSON file path. If not provided, prints to stdout.", default=None)
+    parser.add_argument("--max-tokens", "-t", type=int, help="Maximum tokens for API response.", default=2000)
     args = parser.parse_args()
 
-    ontology_str = generate_hypnokink_ontology(args.kink_name, args.guidance)
+    print(f"Generating ontology for theme: {args.theme_name}")
+    print("Using prompt template from docs/prompts/Generate_Ontology_Theme.txt")
+    
+    ontology_str = generate_hypnokink_ontology(args.theme_name, args.max_tokens)
     
     try:
         ontology_json = json.loads(ontology_str)
-    except json.JSONDecodeError:
-        sys.exit("Failed to parse ontology as JSON.")
+    except json.JSONDecodeError as e:
+        sys.exit(f"Failed to parse ontology as JSON: {e}")
 
     if args.output:
         output_folder = os.path.dirname(args.output)
@@ -65,8 +74,11 @@ def main():
             os.makedirs(output_folder)
         with open(args.output, "w", encoding="utf-8") as f:
             json.dump(ontology_json, f, indent=4, ensure_ascii=False)
-        print(f"Ontology saved to {args.output}")
+        print(f"✅ Ontology saved to {args.output}")
     else:
+        print("\n" + "="*50)
+        print("GENERATED ONTOLOGY:")
+        print("="*50)
         print(json.dumps(ontology_json, indent=4, ensure_ascii=False))
 
 if __name__ == "__main__":

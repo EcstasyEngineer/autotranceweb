@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { signIn, getSession } from "next-auth/react"
+import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 export function LoginForm() {
@@ -28,7 +28,7 @@ export function LoginForm() {
       } else {
         router.push("/dashboard")
       }
-    } catch (error) {
+    } catch {
       setError("An error occurred. Please try again.")
     } finally {
       setIsLoading(false)
@@ -88,7 +88,7 @@ export function LoginForm() {
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="/auth/signup" className="text-blue-600 hover:text-blue-500">
               Sign up
             </a>
@@ -97,7 +97,7 @@ export function LoginForm() {
 
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            Demo: Use any email with password "password"
+            Demo: Use any email with password &quot;password&quot;
           </p>
         </div>
       </form>

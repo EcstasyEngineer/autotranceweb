@@ -1,5 +1,6 @@
 import { POV, Gender } from '@prisma/client';
 import { loadVerbConjugations } from '../tts/verb-conjugations';
+import { createHash } from 'crypto';
 
 export interface RenderContext {
   // Subject (user) settings
@@ -183,7 +184,6 @@ export class TemplateRenderer {
    * Generate a hash for the rendered text (for caching)
    */
   static generateHash(text: string): string {
-    const crypto = require('crypto');
-    return crypto.createHash('sha256').update(text).digest('hex');
+    return createHash('sha256').update(text).digest('hex');
   }
 }

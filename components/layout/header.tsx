@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { UserNav } from "@/components/auth/user-nav"
 
 export function Header() {
@@ -8,21 +9,21 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-gray-900">
+            <Link href="/" className="text-xl font-bold text-gray-900">
               AI Conditioner
-            </a>
+            </Link>
           </div>
           
           <nav className="hidden md:flex space-x-8">
-            <a href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
               Dashboard
-            </a>
-            <a href="/themes" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            </Link>
+            <Link href="/themes" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
               Themes
-            </a>
-            <a href="/sessions" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+            </Link>
+            <Link href="/sessions" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
               Sessions
-            </a>
+            </Link>
           </nav>
 
           <UserNav />

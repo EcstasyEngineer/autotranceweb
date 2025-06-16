@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Play, Pause, SkipForward, Volume2, Eye, EyeOff } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import SpiralViewer from '@/components/ui/spiral-viewer';
 
 export default function SessionPlayer() {
@@ -16,13 +16,13 @@ export default function SessionPlayer() {
   const [volume, setVolume] = useState(70);
   const [currentMantra, setCurrentMantra] = useState("You are becoming more relaxed and focused with each breath...");
 
-  const mantras = [
+  const mantras = useMemo(() => [
     "You are becoming more relaxed and focused with each breath...",
     "Your mind is opening to new possibilities and deeper states...",
     "You feel completely safe and comfortable as you listen...",
     "Each word draws you deeper into this peaceful state...",
     "You are exactly where you need to be in this moment..."
-  ];
+  ], []);
 
   useEffect(() => {
     // Simulate progress and changing mantras
