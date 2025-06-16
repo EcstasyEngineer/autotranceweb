@@ -74,8 +74,13 @@ model Theme {
   id          String   @id @default(cuid())
   name        String   @unique
   description String
-  tags        String[] // Experience, Personality, Hypnosis, etc.
+  appeal      String   // Psychological appeal text
+  
+  // Hierarchical tagging
+  categories  String[] // High-level: ["Hypnosis", "Experience", "Identity", "Personality", "Behavior", "Ds"]
+  relatedThemes String[] // Cross-references to other theme names
   keywords    String[]
+  
   cnc         Boolean  @default(false)
   
   // Content
@@ -90,22 +95,53 @@ model Mantra {
   themeId    String
   theme      Theme      @relation(fields: [themeId], references: [id], onDelete: Cascade)
   
-  text       String
+  // Template-based storage
+  template   String     // "{subject_subjective} [trust|trusts] {dominant_name}'s guidance."
   difficulty Difficulty
   points     Int
   
-  // Line categorization from old system
-  lineType   LineType?  
+  // Content flags
+  hasDominant Boolean   // Whether template includes dominant references
+  lineType   LineType?  // INDUCTION, DEEPENER, etc.
   
-  // Audio properties from old system
-  audioPath  String?
-  audioLength Float?    // in seconds
-  voice      String?    // TTS voice used
+  // Cross-theme tagging
+  crossThemes String[]  // Other theme names this mantra relates to
+  
+  // Relations
+  renderedMantras RenderedMantra[]
   
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   
-  @@unique([themeId, text], name: "themeId_text")
+  @@unique([themeId, template])
+}
+
+model RenderedMantra {
+  id          String   @id @default(cuid())
+  mantraId    String
+  mantra      Mantra   @relation(fields: [mantraId], references: [id], onDelete: Cascade)
+  
+  // Rendering parameters
+  subjectPOV   POV
+  subjectName  String?
+  subjectGender Gender
+  dominantPOV  POV
+  dominantName String?
+  dominantGender Gender
+  
+  // Rendered content
+  text        String   // "I trust Master's guidance."
+  textHash    String   // SHA256 for deduplication
+  
+  // Audio properties
+  audioPath   String?
+  audioLength Float?   // in seconds
+  voice       String   // TTS voice used
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([textHash])
+  @@index([mantraId, subjectPOV, dominantPOV])
 }
 
 model UserSession {
