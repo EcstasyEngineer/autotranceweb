@@ -1,0 +1,5 @@
+# Handle line endings automatically for all text files
+* text=auto
+
+# Force LF for specific files that should always have Unix endings
+*.sh text eol=lf
