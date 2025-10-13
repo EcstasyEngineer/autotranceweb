@@ -1,408 +1,86 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Repository Overview
-
-AI Conditioner Web is a Next.js 15 TypeScript application for generating personalized hypnosis content. The system creates adaptive sessions through themes, mantras, and sophisticated content delivery mechanisms called Cyclers and Players.
-
-## Essential Commands
-
-### Development
-- **Start development server**: `npm run dev` (uses Turbopack for fast builds)
-- **Build production**: `npm run build`
-- **Start production**: `npm start`
-- **Lint code**: `npm run lint`
-
-### Database Operations
-- **Generate Prisma client**: `npx prisma generate`
-- **Database migrations**: `npx prisma migrate dev`
-- **Database studio**: `npx prisma studio`
-- **Database push (dev)**: `npx prisma db push`
-
-### Testing (when implemented)
-- **Run all tests**: `npm test`
-- **Run single test**: `npm test -- <test-file>`
-- **E2E tests**: `npm run test:e2e`
-
-## Core Architecture
-
-### Session Engine (`lib/session-engine/`)
-The heart of the application implementing a sophisticated content delivery system:
-
-**Cyclers** (`cyclers/`): Content selection and sequencing logic
-- `base.ts` - Abstract cycler interface
-- `adaptive.ts` - Dynamic content adaptation based on user state
-- `weave.ts` - Interlaces two content sets for thematic interplay
-- `cluster.ts` - Groups content in thematic clusters
-
-**Players** (`players/`): Spatial arrangement and delivery mechanisms  
-- `base.ts` - Abstract player interface
-- `direct.ts` - Straightforward content delivery
-- `tri-chamber.ts` - Three-channel spatial audio distribution
-- `rotational.ts` - Rotating spatial positions for disorientation
-
-**Session State Tracking**: The system tracks user arousal, focus, and depth to adapt content dynamically. This drives the AdaptiveCycler's decisions about content intensity and selection.
-
-### Template Processing (`lib/tts/`)
-Advanced template system supporting:
-- **Variable substitution**: `{subject_subjective}`, `{dominant_name}`, etc.
-- **Verb conjugation**: `[am|are|are|is]` patterns based on POV
-- **AWS Polly integration**: Hash-based audio caching and generation
-- **159 verb patterns**: Comprehensive conjugation support in `verb-conjugations.ts`
-
-### Database Schema (`prisma/schema.prisma`)
-Multi-model architecture supporting:
-- **Users**: Authentication, preferences, POV settings, scoring
-- **Themes**: High-level hypnosis motifs with tags and metadata
-- **Mantras**: Template-based content with difficulty progression
-- **Sessions**: User-created session configurations with phases
-- **Telemetry**: Real-time state tracking (arousal/focus/depth)
-
-## Key File Locations (Check These First!)
-
-> **IMPORTANT**: Always search these locations before assuming files don't exist or need to be created from scratch.
-
-### Core Application Structure
-
-**Next.js App Router** (`app/`):
-- `app/page.tsx` - Homepage/landing page
-- `app/layout.tsx` - Root layout with global providers
-- `app/globals.css` - Global styles and Tailwind imports
-- `app/auth/signin/page.tsx` & `app/auth/signup/page.tsx` - Authentication pages
-- `app/dashboard/page.tsx` - User dashboard
-- `app/session/builder/page.tsx` - Session creation interface  
-- `app/session/player/[id]/page.tsx` - Session playback interface
-- `app/admin/mantra-editor/page.tsx` - Administrative mantra editing
-- **API Routes**:
-  - `app/api/auth/[...nextauth]/route.ts` - NextAuth.js authentication
-  - `app/api/auth/register/route.ts` - User registration
-  - `app/api/themes/route.ts` - Theme management API
-  - `app/api/tts/generate/route.ts` - Text-to-speech generation
-
-**React Components** (`components/`):
-- `components/auth/` - Authentication components (login-form, signup-form, user-nav)
-- `components/layout/header.tsx` - Main application header
-- `components/providers/auth-provider.tsx` - Authentication context
-- `components/ui/spiral-viewer.tsx` - WebGL-based visual effects component
-
-### Core Business Logic (`lib/`)
-
-**Session Engine** (`lib/session-engine/`):
-- **Cyclers**: `adaptive.ts`, `weave.ts`, `cluster.ts`, `base.ts` - Content selection logic
-- **Players**: `direct.ts`, `tri-chamber.ts`, `rotational.ts`, `base.ts` - Spatial delivery mechanisms
-- `director.ts` - Session orchestration logic
-- `session-parser.ts` - Configuration parsing
-- `types.ts` - TypeScript definitions for session engine
-
-**Content Processing**:
-- `lib/mantras/generation-logic.ts` - Mantra generation algorithms
-- `lib/mantras/template-renderer.ts` - Template processing engine
-- `lib/tts/aws-polly.ts` - AWS Polly TTS integration
-- `lib/tts/verb-conjugations.ts` - 159 verb conjugation patterns
-- `lib/themes.ts` - Theme management utilities
-- `lib/auth.ts` - Authentication configuration
-- `lib/db.ts` - Database connection utilities
-
-### Content and Data
-
-**Hypnosis Content** (`hypnosis/`):
-- `hypnosis/mantras/` - Structured content by category:
-  - `Ds/` - Dominance/submission (Gaslighting.json, Obedience.json)
-  - `Experience/` - Experiential content (Dreaming.json)
-  - `Hypnosis/` - Core techniques (Acceptance.json, Brainwashing.json, Mindbreak.json, etc.)
-  - `Identity/` - Identity transformation (Bimbo.json, Doll.json, Slave.json)
-  - `Personality/` - Personality modification (Addiction.json, Feminine.json)
-- `hypnosis/modular/` - Modular session components:
-  - Root: Thematic modules (Aliens.txt, Compliance.txt, Drone.txt, etc.)
-  - `deepener/` - Trance deepening techniques
-  - `induction/` - Hypnotic induction methods  
-  - `suggestion/` - Specific suggestion patterns
-  - `wakener/` - Session ending techniques
-
-**Theme Definitions** (`ontologies/`):
-- 150+ JSON files defining psychological themes and metadata
-- Examples: `Bimbo.json`, `Relaxation.json`, `Obedience.json`, `Mindbreak.json`
-- Each contains theme metadata, difficulty progression, psychological markers
-
-### Static Assets
-
-**WebGL Shaders**:
-- `assets/shaders/` - Source shader files for development
-- `public/shaders/` - Production shaders (pink_spiral.frag, reversing_rainbow.frag, etc.)
-- `assets/shaders/notes.md` - Shader development documentation
-
-**Images**:
-- `assets/images/` - Source images (spiral.jpg, yukari.png)
-- `public/images/` - Production images
-
-### Documentation (`docs/`)
-
-**Architecture Documentation**:
-- `docs/ARCHITECTURE.md` - System architecture overview
-- `docs/ARCHITECTURAL_ANALYSIS.md` - Detailed architectural analysis
-- `docs/cyclers_and_players_overview.md` - Core system explanations
-- `docs/web_app_development_plan.md` - Development roadmap
-- `docs/MVP_Plan.md` - MVP specifications
-
-**Content Documentation**:
-- `docs/Ontology.md` - Theme system documentation  
-- `docs/Session_Grammar.md` - Session configuration syntax
-- `docs/Terms.md` - Project terminology
-- `docs/Themes.md` - Theme system overview
-
-**AI Prompts** (`docs/prompts/`):
-- Various .txt files for content generation prompts
-- Mantra generation templates and instructions
-
-### Database and Configuration
-
-**Database**:
-- `prisma/schema.prisma` - Complete database schema definition
-- `prisma/dev.db` - SQLite development database
-
-**Configuration Files**:
-- `next.config.ts` - Next.js configuration
-- `tailwind.config.ts` - Tailwind CSS configuration
-- `tsconfig.json` - TypeScript configuration
-- `eslint.config.mjs` - ESLint rules
-
-### Legacy and Development
-
-**Legacy Python Implementation** (`legacy/`):
-- `legacy/python-implementation/src/` - Original cyclers, players, core modules
-- `legacy/python-implementation/database/` - Original data models
-- Reference implementation for TypeScript migration
-
-**Development Tools**:
-- `scripts/` - TypeScript migration and maintenance scripts
-- `research/notebooks/` - Jupyter notebooks for experimentation
-- `research/tools/` - Python content generation tools
-
-## Key Patterns
-
-### Session Creation Flow
-1. User selects themes in session builder (`app/session/builder/`)
-2. System applies difficulty progression and filters
-3. Session engine combines Cyclers + Players for content delivery
-4. Real-time state tracking adapts content during playback
-
-### Template Processing Pipeline
-1. Load theme-specific mantras with difficulty filters
-2. Apply POV and gender variable substitution
-3. Process verb conjugations based on grammatical context
-4. Generate TTS audio with hash-based caching
-5. Deliver through spatial audio players
-
-### Component Architecture
-- **App Router**: Next.js 15 app directory structure
-- **Server Components**: API routes in `app/api/`
-- **Client Components**: Interactive UI with state management
-- **Prisma ORM**: Type-safe database operations
-- **NextAuth**: Authentication with multiple providers
-
-## Development Notes
-
-### Theme System
-Themes are high-level hypnosis motifs that combine with user preferences to generate personalized content. Each theme has associated mantras, difficulty levels, and psychological metadata stored in both file-based content (`hypnosis/mantras/`) and database records.
-
-### State Management
-The application uses a combination of:
-- **Zustand**: Client-side state management
-- **React Query**: Server state and caching
-- **Prisma**: Database state with type safety
-- **Session state**: Real-time tracking of user hypnotic state
-
-### Audio Processing
-TTS generation follows a specific workflow:
-1. Template text → Variable substitution → Verb conjugation
-2. Generate SHA256 hash of final text for deduplication
-3. AWS Polly synthesis with voice selection
-4. File storage with hash-based naming convention
-
-### Visual Effects
-WebGL-based spiral viewer (`components/ui/spiral-viewer.tsx`) supports multiple shader programs for immersive visual experiences. Shaders are loaded dynamically from `public/shaders/` directory.
-
-## Integration Points
-
-### Discord Bot API
-The application provides unified APIs for the companion Discord bot to pull session metadata and mantra content, eliminating content duplication between platforms.
-
-### CDN Strategy  
-Audio files are designed to migrate from local storage to external CDN (Cloudflare R2/AWS S3) for scalability and global distribution.
-
-### Production Infrastructure
-- **Deployment**: Vercel with Next.js optimization
-- **CDN**: Cloudflare for static assets and DDoS protection
-- **Database**: PostgreSQL (development uses SQLite)
-- **Monitoring**: Planned integration with analytics and error tracking
-
-## Repository Etiquette
-
-### Commit Messages
-Must follow Conventional Commits format: `type(scope): subject`
-
-**Examples**: 
-- `feat(auth): add password reset endpoint`
-- `fix(ui): correct button alignment` 
-- `docs(readme): update setup instructions`
-
-**Allowed types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`, `security`, `env`, `deps`
-
-### Branch Naming
-Prefer the following patterns:
-- `feature/descriptive-name`
-- `fix/issue-number-description` 
-- `docs/area-updated`
-
-### Merging
-Prefer squash and merge for feature branches into the main development branch.
-
-### General Workflow
-- **Test-Driven Approach**: For new features or bug fixes, aim to write or update tests first
-- **Documentation with Code**: When adding/modifying API endpoints or significant features, update relevant JSDoc and/or markdown documentation in the same commit
-- **Pre-commit Hooks**: Hooks for linting, formatting, and type-checking run automatically. Ensure they pass before finalizing a commit
-
-## GitHub CLI (gh) Usage
-
-### Issue Management
-
-- **Issue Creation**: Use `gh issue create --title "Issue Title" --body "Description" --label "bug,feature-auth,priority-high"` to create GitHub issues
-- **View Issues**: Use `gh issue list` to see open issues, `gh issue view <number>` for details
-- **Pull Request Management**: Use `gh pr create`, `gh pr list`, `gh pr view <number>` for PR operations
-- **Repository Info**: Use `gh repo view` to see repository information
-- **Authentication**: Ensure `gh auth status` shows you're authenticated before using gh commands
-
-### Label Usage Guidelines
-
-**Required Labels for New Issues:**
-
-- **One Issue Type**: `bug`, `enhancement`, `documentation`, `refactor`, `security`, `performance`, `tech-debt`, `maintenance`, `migration`
-- **One Priority**: `priority-critical`, `priority-high`, `priority-medium`, `priority-low`, `priority-backlog`
-- **One or More Features**: Use `feature-*` labels for specific features or `component-*` for cross-cutting concerns
-
-**Feature Labels** (for specific feature areas):
-
-- `feature-session-engine` - Cyclers, Players, and core session logic
-- `feature-tts` - Text-to-speech and audio processing
-- `feature-themes` - Theme system and ontologies
-- `feature-mantras` - Mantra templates and content processing
-- `feature-auth` - Authentication and user management
-- `feature-database` - Database schema and operations
-- `feature-api` - API endpoints and integration
-- `feature-ui` - User interface components
-- `feature-shaders` - WebGL visual effects
-- `feature-discord` - Discord bot integration
-- `feature-cdn` - Audio storage and CDN
-- `feature-session-builder` - Session creation interface
-- `feature-session-player` - Session playback interface
-
-**Component Labels** (for cross-cutting concerns):
-
-- `component-testing` - Testing infrastructure and quality assurance
-- `component-deployment` - DevOps and deployment
-- `component-admin` - Administrative tools
-
-**Optional Labels:**
-
-- **Effort Estimation**: `effort-xs` (<2h), `effort-s` (2-8h), `effort-m` (1-3d), `effort-l` (3-7d), `effort-xl` (1+ weeks)
-- **Research Needs**: `deepsearch-requested` (for heavy analysis requiring specialized AI), `needs-design`, `needs-research`
-- **Release Priority**: `mvp` (critical for MVP release)
-
-### GitHub Issue Creation Tips
-
-When creating GitHub issues with complex markdown content, use the Write tool to create a temporary file:
-
-1. **Use the Write tool to create the issue body file:**
-
-   ```typescript
-   // Use Write tool to create issue-body.md with your content
-   Write(
-     'issue-body.md',
-     `
-   ## Problem Description
-   
-   Your markdown content here...
-   
-   ## Recommendations
-   - Bullet points
-   - Code blocks
-   `
-   );
-   ```
-
-2. **Use the temp file in the gh command, then clean up:**
-
-   ```bash
-   gh issue create --title "Issue Title" --body-file issue-body.md --label "enhancement,priority-high" && rm issue-body.md
-   ```
-
-3. **Alternative: For simple issues, use direct --body flag:**
-   ```bash
-   # For shorter, simpler content without complex formatting
-   gh issue create --title "Title" --body "Simple description" --label "bug,priority-high"
-   ```
-
-**Important Notes:**
-
-- **NEVER use heredocs (`cat > file << 'EOF'`)** - they have delimiter issues in the Claude Code environment
-- **ALWAYS use the Write tool** for creating temporary files with complex content
-- **ALWAYS chain `&& rm filename.md`** to clean up after successful issue creation
-- The Write tool handles all escaping and formatting correctly
-
-**Label Examples:**
-
+# AI Conditioner Web
+
+AI Conditioner Web is a greenfield Next.js 15 application for generating hypnotic suggestions with assistive AI. It blends an adaptive content engine—borrowing ideas from livecoding tools like TidalCycles and earlier internal prototypes—with a modern audio pipeline so users can assemble, render, and replay immersive sessions.
+
+## Vision
+- **Dynamic session builder** that lets creators stitch together phases, pick themes, and preview timing before publishing.
+- **Cycler-driven content flow** that adapts mantra ordering, pacing, and emphasis based on user intent (focus, arousal, depth).
+- **AI-assisted voice work** through a TTS layer that caches rendered audio and keeps consistent voices across sessions.
+- **Persistent backend** so generated assets, templates, and telemetry survive across browser sessions and devices.
+
+## Stack Overview
+- **Framework**: Next.js 15 (App Router) with React Server Components and Tailwind CSS.
+- **Language & Tooling**: TypeScript, ESLint, Prettier, Turbopack for fast dev builds.
+- **State**: React Query for server cache, Zustand for client state, and session-state helpers in `lib/session-engine/`.
+- **Auth**: NextAuth.js configured for credentials + OAuth providers.
+- **Database**: Prisma ORM targeting PostgreSQL; SQLite is supported for local prototypes via connection string swap.
+- **Audio**: AWS Polly integration with SHA256-based caching stored alongside rendered mantra text.
+
+## Getting Started
 ```bash
-# Bug report
-gh issue create --title "Session player audio fails to load" --label "bug,feature-session-player,priority-high,effort-s"
-
-# Feature request
-gh issue create --title "Add new spiral shader effects" --label "enhancement,feature-shaders,priority-medium,effort-l"
-
-# Research task requiring deep analysis
-gh issue create --title "Optimize mantra template processing performance" --label "performance,feature-mantras,priority-medium,deepsearch-requested,effort-m"
-
-# Security improvement
-gh issue create --title "Implement rate limiting for TTS API endpoints" --label "security,feature-tts,feature-api,priority-high,effort-m"
-
-# Cross-feature enhancement
-gh issue create --title "Improve session builder UX for theme selection" --label "enhancement,feature-session-builder,feature-ui,priority-medium,effort-l"
-
-# MVP critical item
-gh issue create --title "Fix authentication flow for production deployment" --label "bug,feature-auth,priority-critical,mvp,effort-s"
+npm install              # install deps
+npm run dev              # dev server
+npm run lint             # project linting
+npm run build            # production build
+npm start                # serve production build
 ```
 
-**Special Labels:**
+Prisma commands you will reach for often:
+- `npx prisma generate` – regenerate the client after schema tweaks.
+- `npx prisma migrate dev` – create and apply a migration while prototyping.
+- `npx prisma db push` – push schema to dev DB without migrations (useful early on).
+- `npx prisma studio` – inspect and edit records through Prisma Studio.
 
-- **`deepsearch-requested`**: Use when issue requires heavy research, complex analysis, or architectural decisions
-- **`needs-design`**: Use when issue requires architectural planning before implementation
-- **`needs-research`**: Use when issue requires investigation or proof-of-concept work
-- **`mvp`**: Critical for minimum viable product release
+## Key Subsystems
 
-## Development Best Practices
+### App Router (`app/`)
+- `app/page.tsx` acts as the marketing/landing shell.
+- Auth flows live under `app/auth/`, the dashboard under `app/dashboard/`, and the session builder/player under `app/session/`.
+- API routes (`app/api/.../route.ts`) power server-side session manipulation, theme lookup, and TTS rendering without leaving the App Router.
 
-### Code Organization
+### Session Engine (`lib/session-engine/`)
+- **Cyclers** (`cyclers/*.ts`) control the ordering logic for mantra delivery: adaptive, weave, cluster, and more experimental behaviors.
+- **Players** (`players/*.ts`) define spatialization and timing (direct, tri-chamber, rotational, etc.).
+- `director.ts`, `session-parser.ts`, and `types.ts` wire cyclers, players, and telemetry together so phases can adapt mid-session.
 
-**Keep Related Changes Together:**
-- Session engine changes (cyclers, players) should include any necessary type updates
-- TTS modifications should update both generation logic and any related UI components
-- Theme/mantra changes should include both content files and database schema updates if needed
+### Audio & Templates (`lib/tts/` and `lib/mantras/`)
+- Template rendering handles variable substitution (`{subject_subjective}`), verb conjugation, and persona POV selection before hitting Polly.
+- Audio files are hashed by rendered text to avoid duplicate synthesis and to enable CDN migration later.
 
-**Commit Hygiene:**
-- Use descriptive commit messages following conventional commits format
-- Include context about *why* changes were made, not just what changed
-- Break large features into logical, reviewable commits
+### Data Model (Prisma)
+- **User** – credentials, POV preferences, and telemetry aggregate.
+- **Theme** – curated hypnosis motifs with tagging and CNC flags.
+- **Mantra** – template text tied to themes, difficulty, and content flags.
+- **RenderedMantra** – concrete text/audio output keyed by hash.
+- **UserSession / Phase / PhaseItem / Effect** – builder output describing how a session plays back.
+- **Telemetry** – optional live measurements (arousal/focus/depth) for adaptive loops.
 
-### Development Environment Notes
+## Content Sources
+- Structured hypnosis content lives under `hypnosis/` (mantras and modular session pieces).
+- Ontology metadata and theme descriptors live in `ontologies/`.
+- Visuals, shaders, and audio assets reside in `assets/` (source) and `public/` (served).
 
-- **Database**: Run `npx prisma generate` after schema changes, `npx prisma db push` for dev database updates
-- **Audio Files**: TTS output stored locally in development (will migrate to CDN for production)
-- **Content Loading**: Hypnosis content in `hypnosis/` and `ontologies/` directories loaded at build time
-- **Shaders**: WebGL fragment shaders in `public/shaders/` are loaded dynamically by the spiral viewer
+## Development Workflow
+- Favor incremental commits with Conventional Commit messages (`feat(session): add adaptive cycler strategy`).
+- Keep tests and lint passing (`npm run lint`). Add Playwright/jest coverage as the test story evolves.
+- When altering schema or session engine primitives, update related docs in `docs/` (e.g., `Session_Grammar.md`, `cyclers_and_players_overview.md`).
+- Use feature branches (`feature/new-session-phase`) and squash merge back into `main`.
 
-### Common Gotchas
+## Issue & Task Tracking
+- Issue title pattern: `[Area] short description` (e.g., `[Session Engine] Adaptive loop stalls`).
+- Minimum labels: one type (`bug`, `enhancement`, `documentation`, `tech-debt`), one priority (`priority-high`, `priority-medium`, etc.), and the relevant feature label (`feature-session-engine`, `feature-tts`, `feature-ui`, ...).
+- When filing issues, include reproduction steps, environment info (`node -v`, `npm -v`, branch), and direct file references such as `lib/session-engine/cyclers/adaptive.ts:45`.
+- For GH CLI: `gh issue create --title "…" --body "…" --label "bug,feature-session-builder,priority-medium"`.
 
-- **Search Commands**: Use `--exclude-dir=node_modules --exclude-dir=.next --exclude-dir=legacy` to avoid timeouts
-- **Template Variables**: TTS templates use `{variable}` syntax - ensure proper escaping in JSON content
-- **Audio Caching**: TTS files are hash-based - content changes regenerate audio automatically
-- **Prisma Schema**: Always run `npx prisma generate` after schema modifications before starting dev server
+## Build Troubleshooting Checklist
+- [ ] Dependencies installed (`npm install`) and Node ≥ 18.
+- [ ] Prisma client regenerated after schema changes.
+- [ ] `npm run lint` and future `npm test` succeed locally.
+- [ ] `.next/` cache cleared if hot reload acts stale.
+- [ ] Environment variables (`DATABASE_URL`, AWS credentials for Polly) present in `.env.local`.
+
+## Open Questions / Next Up
+- Finalize how adaptive cyclers read telemetry in real time (web sockets vs polling).
+- Decide on default voice pack & fallback when Polly quota hits limits.
+- Align SQLite dev workflow with production Postgres migrations to avoid drift.
+- Document a happy-path user journey through the session builder once UI stabilizes.
