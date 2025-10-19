@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbo",
+    "probe": "node scripts/wsl-probe.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",
@@ -21,6 +23,7 @@
     "lucide-react": "^0.515.0",
     "next": "15.1.7",
     "next-auth": "^4.24.11",
+    "pg": "^8.16.3",
     "prisma": "^6.9.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
