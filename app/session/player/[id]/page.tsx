@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Play, Pause, SkipForward, Volume2, Eye, EyeOff } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import SpiralViewer from '@/components/ui/spiral-viewer';
+import SessionAudio, { ArrangedSegment } from '@/components/audio/session-audio';
 
 export default function SessionPlayer() {
   const params = useParams();
@@ -24,25 +25,14 @@ export default function SessionPlayer() {
     "You are exactly where you need to be in this moment..."
   ], []);
 
+  // Drive progress updates based on audio segments
   useEffect(() => {
-    // Simulate progress and changing mantras
-    if (isPlaying) {
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          const newProgress = (prev + 1) % 100;
-          
-          // Change mantra every 20% progress
-          if (newProgress % 20 === 0) {
-            const mantraIndex = Math.floor(newProgress / 20) % mantras.length;
-            setCurrentMantra(mantras[mantraIndex]);
-          }
-          
-          return newProgress;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying, mantras]);
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      setProgress(prev => (prev + 1) % 100);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   const phaseInfo = [
     { name: "Induction", player: "Direct", cycler: "Chain", duration: "5 min" },
@@ -51,6 +41,32 @@ export default function SessionPlayer() {
   ];
 
   const currentPhaseInfo = phaseInfo[currentPhase - 1];
+
+  // Minimal arranged segments per player to demonstrate pan behavior
+  const segments: ArrangedSegment[] = useMemo(() => {
+    switch (currentPhaseInfo.player) {
+      case 'Tri-Chamber':
+        return [
+          { durationSec: 2.0, pan: -0.6, gain: 0.4 },
+          { durationSec: 2.0, pan: 0.0, gain: 0.4 },
+          { durationSec: 2.0, pan: 0.6, gain: 0.4 },
+        ];
+      case 'Rotational':
+        return [
+          { durationSec: 1.5, pan: -0.8, gain: 0.35 },
+          { durationSec: 1.5, pan: -0.4, gain: 0.35 },
+          { durationSec: 1.5, pan: 0, gain: 0.35 },
+          { durationSec: 1.5, pan: 0.4, gain: 0.35 },
+          { durationSec: 1.5, pan: 0.8, gain: 0.35 },
+        ];
+      default: // Direct and others
+        return [
+          { durationSec: 2.0, pan: 0, gain: 0.4 },
+          { durationSec: 2.0, pan: 0, gain: 0.4 },
+          { durationSec: 2.0, pan: 0, gain: 0.4 },
+        ];
+    }
+  }, [currentPhaseInfo.player]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -80,6 +96,17 @@ export default function SessionPlayer() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hidden audio driver for MVP */}
+        <SessionAudio 
+          isPlaying={isPlaying}
+          volume={volume}
+          segments={segments}
+          loop
+          onSegment={(i) => {
+            const mantraIndex = i % mantras.length;
+            setCurrentMantra(mantras[mantraIndex]);
+          }}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Visual Panel */}
