@@ -1,20 +1,28 @@
 import fs from 'fs';
 import path from 'path';
-import { prisma } from './prisma';
+import { prisma } from './db';
 
 export interface ThemeOntology {
   description: string;
   appeal: string;
   keywords: string[];
   cnc?: boolean;
-  tags?: string[];
+  tags?: string[]; // mapped to Prisma Theme.categories
 }
 
 export interface MantraData {
-  text: string;
+  text: string; // normalized plain text template
   difficulty: 'BASIC' | 'LIGHT' | 'MODERATE' | 'DEEP' | 'EXTREME';
   points: number;
 }
+
+type RawMantraEntry = {
+  line?: string;
+  text?: string;
+  difficulty?: string;
+  dominant?: string | null;
+  hasDominant?: boolean;
+};
 
 export class ThemeLoader {
   private ontologiesPath = path.join(process.cwd(), 'ontologies');
@@ -49,8 +57,22 @@ export class ThemeLoader {
           data: {
             name: themeName,
             description: ontologyData.description,
+            appeal: ontologyData.appeal,
             keywords: ontologyData.keywords,
-            tags: ontologyData.tags || this.categorizeTheme(themeName),
+            categories: ontologyData.tags || this.categorizeTheme(themeName),
+            relatedThemes: [],
+            cnc: ontologyData.cnc || false
+          }
+        });
+      } else {
+        // Update core fields if ontology changed
+        await prisma.theme.update({
+          where: { id: theme.id },
+          data: {
+            description: ontologyData.description,
+            appeal: ontologyData.appeal,
+            keywords: ontologyData.keywords,
+            categories: ontologyData.tags || this.categorizeTheme(themeName),
             cnc: ontologyData.cnc || false
           }
         });
@@ -85,25 +107,44 @@ export class ThemeLoader {
 
   private async loadNormalizedMantras(themeId: string, filePath: string) {
     try {
-      const mantras: MantraData[] = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      
-      for (const mantra of mantras) {
+      const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as unknown;
+      if (!Array.isArray(raw)) {
+        console.warn(`Expected array of mantra entries in ${filePath}`);
+        return;
+      }
+
+      for (const entryRaw of raw) {
+        const entry = (entryRaw ?? {}) as RawMantraEntry | string;
+        // Support JSON arrays with objects like { type, line, dominant, subject, difficulty }
+        const template: string = typeof entry === 'string'
+          ? entry
+          : (entry.line ?? entry.text ?? '');
+        if (!template || typeof template !== 'string') continue;
+
+        const diffRaw: string | undefined = typeof entry === 'string' ? undefined : entry.difficulty;
+        const difficulty = this.normalizeDifficulty(diffRaw) ?? this.estimateDifficulty(template).difficulty;
+        const points = this.pointsForDifficulty(difficulty);
+        const hasDominant = this.detectDominant(typeof entry === 'string' ? undefined : entry, template);
+
         await prisma.mantra.upsert({
           where: {
-            themeId_text: {
+            themeId_template: {
               themeId,
-              text: mantra.text
+              template
             }
           },
           update: {
-            difficulty: mantra.difficulty,
-            points: mantra.points
+            difficulty,
+            points,
+            hasDominant
           },
           create: {
             themeId,
-            text: mantra.text,
-            difficulty: mantra.difficulty,
-            points: mantra.points
+            template,
+            difficulty,
+            points,
+            hasDominant,
+            crossThemes: []
           }
         });
       }
@@ -120,11 +161,12 @@ export class ThemeLoader {
       for (const line of lines) {
         const { difficulty, points } = this.estimateDifficulty(line);
         
+        const template = line.trim();
         await prisma.mantra.upsert({
           where: {
-            themeId_text: {
+            themeId_template: {
               themeId,
-              text: line.trim()
+              template
             }
           },
           update: {
@@ -133,9 +175,11 @@ export class ThemeLoader {
           },
           create: {
             themeId,
-            text: line.trim(),
+            template,
             difficulty,
-            points
+            points,
+            hasDominant: this.detectDominant(undefined, template),
+            crossThemes: []
           }
         });
       }
@@ -173,6 +217,32 @@ export class ThemeLoader {
     
     // Default to basic
     return { difficulty: 'BASIC', points: 12 };
+  }
+
+  private normalizeDifficulty(val?: string): MantraData['difficulty'] | undefined {
+    if (!val) return undefined;
+    const v = String(val).toUpperCase();
+    if ([ 'BASIC','LIGHT','MODERATE','DEEP','EXTREME' ].includes(v)) return v as MantraData['difficulty'];
+    return undefined;
+  }
+
+  private pointsForDifficulty(diff: MantraData['difficulty']): number {
+    switch (diff) {
+      case 'EXTREME': return 110;
+      case 'DEEP': return 70;
+      case 'MODERATE': return 40;
+      case 'LIGHT': return 25;
+      case 'BASIC':
+      default: return 12;
+    }
+  }
+
+  private detectDominant(entry: RawMantraEntry | undefined, template: string): boolean {
+    if (entry && (entry.dominant || typeof entry.hasDominant === 'boolean')) {
+      return Boolean(entry.dominant ?? entry.hasDominant);
+    }
+    const t = template.toLowerCase();
+    return t.includes("master") || t.includes("mistress") || t.includes("dominant") || t.includes("{dominant_");
   }
 
   private categorizeTheme(themeName: string): string[] {
