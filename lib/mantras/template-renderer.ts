@@ -1,5 +1,4 @@
 import { POV, Gender } from '@prisma/client';
-import { loadVerbConjugations } from '../tts/verb-conjugations';
 import { createHash } from 'crypto';
 
 export interface RenderContext {
@@ -16,11 +15,6 @@ export interface RenderContext {
 }
 
 export class TemplateRenderer {
-  private verbConjugations: Map<string, string[]>;
-  
-  constructor() {
-    this.verbConjugations = loadVerbConjugations();
-  }
   
   /**
    * Render a template string with the given context

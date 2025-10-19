@@ -45,12 +45,6 @@ export default function MantraEditor() {
     'Salli', 'Joanna', 'Kendra', 'Kimberly', 'Amy', 'Emma', 'Brian', 'Justin'
   ];
 
-  useEffect(() => {
-    if (currentTemplate) {
-      generateVariants();
-    }
-  }, [currentTemplate, generateVariants]);
-
   const generateVariants = useCallback(() => {
     if (!currentTemplate.trim()) {
       setVariants([]);
@@ -86,6 +80,12 @@ export default function MantraEditor() {
 
     setVariants(newVariants);
   }, [currentTemplate]);
+
+  useEffect(() => {
+    if (currentTemplate) {
+      generateVariants();
+    }
+  }, [currentTemplate, generateVariants]);
 
   const generateAudioForVariants = async () => {
     setIsGeneratingAudio(true);
