@@ -1,6 +1,6 @@
 # Architectural Analysis & Recommendations
 
-**Analysis Date:** June 16, 2025  
+**Analysis Date:** October 19, 2025  
 **Codebase:** ai-conditioner-web  
 **Total Lines of Code:** ~3,328 TypeScript lines  
 
@@ -18,7 +18,7 @@ The AI Conditioner Web application demonstrates sophisticated architectural thin
 ### 2. Modern Technology Stack
 - **Next.js 15** with TypeScript for type safety and modern React features
 - **Prisma ORM** for type-safe database operations
-- **NextAuth** for authentication (though currently broken)
+- **NextAuth** for authentication (credentials + JWT; bcrypt password checks)
 - **WebGL-based visual effects** for immersive user experience
 - **AWS Polly integration** for text-to-speech generation
 
@@ -28,47 +28,32 @@ The AI Conditioner Web application demonstrates sophisticated architectural thin
 - **Theme Organization**: Hierarchical difficulty progression with metadata
 - **Ontology Integration**: JSON-based theme definitions with psychological metadata
 
-## Critical Issues Requiring Immediate Action
+## Key Issues and Gaps
 
-### 🚨 Security Vulnerabilities (URGENT)
-
-#### 1. Authentication System Completely Broken
-```typescript
-// lib/auth.ts:62 - CRITICAL SECURITY FLAW
-const isPasswordValid = credentials.password === "password"
-```
-- **Issue**: Hardcoded password bypass allows any user to login with password "password"
-- **Git Merge Conflicts**: Unresolved conflicts between two authentication implementations
-- **Missing Password Hashing**: Registration route stores passwords in plain text
-- **Impact**: Complete authentication bypass, potential data breach
-
-#### 2. Environment Configuration Missing
-- No proper `.env.local` file for Next.js environment variables
-- AWS credentials not properly managed
-- Database URL configuration incomplete
-- Missing security headers and CORS configuration
+### 1. Environment Configuration
+- Ensure `.env.local` provides `DATABASE_URL`, `NEXTAUTH_SECRET`, and (optionally) AWS credentials for Polly
+- Add basic rate limiting for auth/tts endpoints; consider security headers as part of deployment
 
 ### 🔧 Major Architectural Issues
 
-#### 1. File System Dependencies (Deployment Breaking)
+### 2. File System Dependencies (Serverless Incompatibility)
 ```typescript
 // lib/themes.ts:111 - Will fail in production
 const content = fs.readFileSync(filePath, 'utf-8');
 ```
 - **Issue**: Content loading relies on file system access
-- **Impact**: Will break completely on serverless platforms (Vercel)
-- **Missing CDN Strategy**: References to CDN migration but no implementation
+- **Impact**: Will break on serverless platforms (Vercel) if used at runtime
+- **CDN/Storage**: Strategy planned; implementation pending (object storage for audio + CDN)
 
-#### 2. Session Engine Incomplete
+### 3. Session Engine Incomplete
 - **Director Class**: Multiple TODO comments and unimplemented semantic vector features
 - **Real-time State**: Missing WebSocket integration for telemetry tracking
 - **Adaptive Logic**: Placeholder implementations in adaptive cycler
 
-#### 3. Database Migration Strategy Undefined
-- Schema designed for PostgreSQL but development uses SQLite
-- No migration scripts or database seeding strategy
-- Ontology files (JSON) not integrated with database records
-- Missing indexes for performance optimization
+### 4. Database Seeding & Migrations
+- Schema targets PostgreSQL; Prisma migrations/seed scripts are not included
+- Provide a seeding path from `ontologies/` + `hypnosis/mantras/` into DB (pre‑deployment)
+- Add indexes for performance as dataset grows
 
 ## Code Quality Concerns
 
@@ -100,16 +85,10 @@ export enum CyclerType {
 ### Phase 1: Security & Stability (1-2 weeks) 🚨
 
 #### Immediate Actions (Day 1)
-1. **Fix Authentication System**
-   ```typescript
-   // Replace hardcoded password check with proper bcrypt
-   const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-   ```
-   
-2. **Resolve Merge Conflicts**
-   - Clean up `lib/auth.ts` merge conflicts
-   - Choose single authentication implementation
-   - Test authentication flow end-to-end
+1. **Harden Authentication**
+   - Bcrypt hashing in registration and `bcrypt.compare` in login are in place
+   - Add basic rate limiting and lockout on repeated failures
+   - Ensure `NEXTAUTH_SECRET` and `NEXTAUTH_URL` configured in all environments
 
 3. **Environment Setup**
    ```bash
@@ -255,9 +234,8 @@ lib/
 ## Risk Assessment
 
 ### High Risk (Immediate Action Required)
-- **Authentication Bypass**: Complete security failure
-- **Deployment Failure**: File system dependencies will break production
-- **Data Loss**: No proper backup/migration strategy
+- **Serverless Deployment Failure**: File system dependencies will break serverless deploys
+- **Data Loss**: No formal seeding/backup strategy documented
 
 ### Medium Risk (Address in Phase 2)
 - **Performance Issues**: Poor user experience with large datasets
